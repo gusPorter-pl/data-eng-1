@@ -19,8 +19,6 @@ def validate_data(data: pd.DataFrame) -> bool:
 
     timestamps = data["time_played"].tolist()
     for timestamp in timestamps:
-        print(timestamp[0: 10])
-        print(timestamp)
         if datetime.datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S.%fZ") < difference:
             raise Exception("Time played does not occur in the past 24 hours")
 
