@@ -1,6 +1,11 @@
 import datetime
 import pandas as pd
 
+"""
+Checks to see if the data sent through is valid
+Params: Takes panda dataframe
+Return: Boolean that shows if data is integral
+"""
 def validate_data(data: pd.DataFrame) -> bool:
     if data.empty:
         print("No songs listened to today")
@@ -21,10 +26,16 @@ def validate_data(data: pd.DataFrame) -> bool:
 
     return True
 
+"""
+Checks if an error message has been passed
+"""
 def check_error(data):
     if "error" in data:
         raise Exception(f"\n{data['error']['status']}: {data['error']['message']}")
 
+"""
+Prints songs through a for loop
+"""
 def print_songs(songs):
     # print(json.dumps(items[0], indent=4, sort_keys=True))
     for song in songs:
