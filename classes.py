@@ -39,7 +39,7 @@ class SongDataFrame:
             "title": [song.title for song in self.songs],
             "album": [song.album for song in self.songs],
             "artist": [song.artist for song in self.songs],
-            "duration": [song.duration for song in self.songs],
-            "time_played": [song.time_played for song in self.songs]
+            "duration": [song.duration.__str__() for song in self.songs],
+            "time_played": [song.time_played.__str__() for song in self.songs]
         }
         return pd.DataFrame(song_dict, columns=("title", "album", "artist", "duration", "time_played"))

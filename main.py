@@ -9,9 +9,11 @@ import json
 import datetime
 import sqlite3
 
-DATABASE = "sqlite:///played_songs.sqlite"
+TABLE = "played_songs"
+FILE = f"{TABLE}.sqlite"
+DATABASE = f"sqlite:///{FILE}"
 USER_ID = "angusporter7"
-O_AUTH_TOKEN = "BQDmm8SvsdRGmvbErVln6u8S4DkxWXLot30Fvg1l2QVK80V0hTp1NiMaPB_z8a8lxDW879zTNZ_gviGJwIu1IQS5FHJS-U4UcRsJTv5FpXkggUDIMdDZgAbt_uZeBj5r8s7jycOEKolCCYVuAHm6uuo9J2V-Uj30pGFxH7OR"
+O_AUTH_TOKEN = "BQC7PPR8PAd8QfzZUGLKY5sEezwiS-ZpD03jAlc8XjyjZpDfxa5AbsN2L7KkwG6QSpKm2v8f8G2_Kd68V502FhD5nIbstGNC9fgugMiF0xKeFYOXvGgCTENnFVQ7gFHJsT5ZtrMX_gWHYZEo-2A8tpqLJ_To-D9RefNt-DjV"
 ENDPOINT = "https://api.spotify.com/v1/me/player/recently-played"
 
 def get_timestamp_query():
@@ -20,7 +22,7 @@ def get_timestamp_query():
     difference_timestamp = int(difference.timestamp()) * 1000  # timestamp difference
     return difference_timestamp
 
-def assess_data(items):
+def create_song_list(items):
     song_list = []
     for item in items:
         title = item["track"]["name"]
@@ -32,6 +34,7 @@ def assess_data(items):
     return song_list
 
 def main():
+    # EXTRACT
     headers = {
         "Accept": "application/json",
         "Content-Type": "application/json",
@@ -41,11 +44,38 @@ def main():
     req = requests.get(f"{ENDPOINT}?after={difference_timestamp}", headers=headers)
     data = req.json()
     check_error(data)
-    songs = assess_data(data["items"])
+    songs = create_song_list(data["items"])
     song_dataframe = SongDataFrame(songs)
+
+    # VALIDATE
     if validate_data(song_dataframe.data):
         print_songs(songs)
         print(song_dataframe.data)
+
+    # LOAD
+    engine = sqlalchemy.create_engine(DATABASE)
+    conn = sqlite3.connect(FILE)
+    cursor = conn.cursor()
+    query = f"""
+        CREATE TABLE IF NOT EXISTS {TABLE}(
+            title VARCHAR(128),
+            album VARCHAR(128),
+            artist VARCHAR(128),
+            duration VARCHAR(128),
+            time_played VARCHAR(128),
+            PRIMARY KEY (time_played)
+        );
+    """
+    cursor.execute(query)
+    print("Executed create table query")
+    
+    try:
+        song_dataframe.data.to_sql(TABLE, engine, index=False, if_exists="append")
+    except:
+        print("Data already exists in the database")
+    finally:
+        print("Executed update table query")
+        conn.close()
 
 if __name__ == "__main__":
     main()
