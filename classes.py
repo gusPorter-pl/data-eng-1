@@ -11,8 +11,15 @@ class Duration:
         else:
             return f"{second_length // 60}:{second_length % 60}"
 
+class Time:
+    def __init__(self, time: str):
+        self.time = time
+    
+    def __str__(self):
+        return f"{self.time[0: 10]} {self.time[11: 23]}"
+
 class Song:
-    def __init__(self, title: str, album: str, artist: str, duration: Duration, time_played: str):
+    def __init__(self, title: str, album: str, artist: str, duration: Duration, time_played: Time):
         self.title = title
         self.album = album
         self.artist = artist

@@ -1,4 +1,4 @@
-from classes import Song, Duration, SongDataFrame
+from classes import Song, Duration, Time, SongDataFrame
 from functions import validate_data, check_error, print_songs
 
 import sqlalchemy
@@ -27,7 +27,7 @@ def assess_data(items):
         album = item["track"]["album"]["name"]
         artist = item["track"]["artists"][0]["name"]
         duration = Duration(item["track"]["duration_ms"])
-        time_played = item["played_at"]
+        time_played = Time(item["played_at"])
         song_list.append(Song(title, album, artist, duration, time_played))
     return song_list
 
